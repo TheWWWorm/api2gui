@@ -1,18 +1,23 @@
 import axios from 'axios';
 
-export function handleRequest(event) {
+export function handleRequest(event, settingsData) {
+    event.persist();
     event.preventDefault();
     return (dispatch) => {
-        dispatch({ type: 'REQUEST_BEGIN'})
+        dispatch({ type: 'REQUEST_BEGIN'});
 
         const url = event.target.action;
         const method = event.target.method;
-        const data = {};
+        const data = settingsData.reduce((obj, setting) => {
+            obj.settings[setting.name] = setting.value; 
+            return obj;
+        }, {settings : {}});
 
         new FormData(event.target).forEach((value, key) => {
-            data[key] = value;
+            if (value !== '') {
+                data[key] = value;
+            }
         });
-        
 
         axios({
             url,
@@ -20,8 +25,10 @@ export function handleRequest(event) {
             data
         }).then((response) => {
             dispatch({ type: 'REQUEST_COMPLETED', payload: response.data });
-        }).catch((err) => {
-            dispatch({ type: 'REQUEST_FAILED', payload: err });
+        }).catch((error) => {
+            dispatch({ type: 'REQUEST_FAILED', payload: error });
+        }).then(() => {
+            event.target.reset();
         });
     };
 }

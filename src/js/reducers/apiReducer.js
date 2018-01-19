@@ -1,3 +1,5 @@
+'use strict';
+
 export default function reducer(state = {
     json: { Hint: 'Here you will see the latest response' },
     error: null,
@@ -8,25 +10,29 @@ export default function reducer(state = {
 
     switch (type) {
         case 'REQUEST_BEGIN': {
-            return { ...state, requesting: true }
+            return {
+                ...state,
+                requesting: true,
+                json: {State: 'Requesting. Please Wait!'},
+                error: null
+            }
         }
         case 'REQUEST_COMPLETED': {
             return {
                 ...state,
                 requesting: false,
                 json: payload,
-                error: null
             }
         }
         case 'REQUEST_FAILED': {
             return {
                 ...state,
                 requesting: false,
-                json: payload,
+                json: payload.response || payload,
                 error: payload
             }
         }
     }
 
-    return state
+    return {...state};
 }
