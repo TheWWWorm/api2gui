@@ -4,7 +4,6 @@ const express = require('express');
 const webpack = require('webpack');
 const webpackDevMiddleware = require('webpack-dev-middleware');
 const path = require('path');
-const { stampIt, getHeaders } = require('./lib/func');
 const r = require('./lib/r');
 const config = require('./lib/config');
 const logger = require('log4js').getLogger('Index');
@@ -48,14 +47,11 @@ app.all('/proxy/*', (req, res) => {
     const proxyTo = `${settings.protocol}://${settings.path}:${settings.port}`;
     delete req.body.settings;
 
-    r.post(
-        req.path.replace(`/proxy`, proxyTo),
-        req.body,
-       ).then(({ body }) => {
+    r.post(req.path.replace(`/proxy`, proxyTo), req.body).then(({ body }) => {
         res.send(body);
     }).catch((err) => {
         res.send(err);
-    })
+    });
 });
 
 const server = app.listen({
